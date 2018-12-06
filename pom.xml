@@ -26,6 +26,11 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>io.logz.logback</groupId>
+			<artifactId>logzio-logback-appender</artifactId>
+			<version>1.0.20</version>
+		</dependency>
+		<dependency>
 					 <groupId>org.springframework.boot</groupId>
 					 <artifactId>spring-boot-starter-data-jpa</artifactId>
 			 </dependency>
@@ -43,12 +48,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>9.4-1206-jdbc42</version>
 		</dependency>
 
 
