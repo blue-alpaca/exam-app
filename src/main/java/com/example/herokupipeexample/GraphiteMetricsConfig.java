@@ -30,6 +30,7 @@ public class GraphiteMetricsConfig {
                 MetricAttribute.M15_RATE,
                 MetricAttribute.MEAN_RATE,
                 MetricAttribute.MIN,
+                MetricAttribute.MAX,
                 MetricAttribute.MEAN,
                 MetricAttribute.STDDEV,
                 MetricAttribute.P98,

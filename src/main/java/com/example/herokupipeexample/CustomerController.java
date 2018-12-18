@@ -26,8 +26,8 @@ public class CustomerController {
     public CustomerController(CustomerRepository customerRepository, MetricRegistry registry) {
         this.customerRepository = customerRepository;
         this.registry = registry;
-        customersCreated = registry.counter(name(CustomerController.class, "customers"));
-        responses = registry.timer(name(CustomerController.class, "responses"));
+        customersCreated = registry.counter("customers");
+        responses = registry.timer("responses");
         logger = LoggerFactory.getLogger(CustomerController.class);
     }
 
@@ -42,7 +42,7 @@ public class CustomerController {
     public List<Customer> find(@RequestParam(value = "lastName") String lastName) {
         final Timer.Context context = responses.time();
 
-        logger.info("Getting customer");
+        logger.warn("Getting customer");
         List<Customer> customers = customerRepository.findByLastName(lastName);
         context.stop();
         return customers;
@@ -50,7 +50,7 @@ public class CustomerController {
 
     @PostMapping("/")
     public Customer newCustomer(@RequestBody Customer customer) {
-        logger.info("Creating customer");
+        logger.warn("Creating customer");
         customersCreated.inc();
         System.out.println(customer);
         return customerRepository.save(customer);
