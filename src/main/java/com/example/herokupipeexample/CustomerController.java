@@ -1,6 +1,5 @@
 package com.example.herokupipeexample;
 
-import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
@@ -10,8 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static com.codahale.metrics.MetricRegistry.name;
-
 @RestController
 public class CustomerController {
 
@@ -19,15 +16,11 @@ public class CustomerController {
     private MetricRegistry registry;
 
     private CustomerRepository customerRepository;
-    private final Counter customersCreated;
-    private final Timer responses;
     private Logger logger;
 
     public CustomerController(CustomerRepository customerRepository, MetricRegistry registry) {
         this.customerRepository = customerRepository;
         this.registry = registry;
-        customersCreated = registry.counter("customers");
-        responses = registry.timer("responses");
         logger = LoggerFactory.getLogger(CustomerController.class);
     }
 
@@ -40,7 +33,7 @@ public class CustomerController {
 
     @RequestMapping("/list")
     public List<Customer> find(@RequestParam(value = "lastName") String lastName) {
-        final Timer.Context context = responses.time();
+        final Timer.Context context = registry.timer("responses").time();
 
         logger.warn("Getting customer");
         List<Customer> customers = customerRepository.findByLastName(lastName);
@@ -51,7 +44,7 @@ public class CustomerController {
     @PostMapping("/")
     public Customer newCustomer(@RequestBody Customer customer) {
         logger.warn("Creating customer");
-        customersCreated.inc();
+        registry.counter("customers").inc();
         System.out.println(customer);
         return customerRepository.save(customer);
     }
