@@ -1,17 +1,16 @@
 package com.example.herokupipeexample;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
+import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+import static com.codahale.metrics.MetricRegistry.name;
 
 @RestController
 public class CustomerController {
@@ -20,31 +19,41 @@ public class CustomerController {
     private MetricRegistry registry;
 
     private CustomerRepository customerRepository;
+    private final Counter customersCreated;
+    private final Timer responses;
+    private Logger logger;
 
     public CustomerController(CustomerRepository customerRepository, MetricRegistry registry) {
-      this.customerRepository = customerRepository;
-      this.registry = registry;
+        this.customerRepository = customerRepository;
+        this.registry = registry;
+        customersCreated = registry.counter(name(CustomerController.class, "customers"));
+        responses = registry.timer(name(CustomerController.class, "responses"));
+        logger = LoggerFactory.getLogger(CustomerController.class);
     }
 
     @RequestMapping("/")
     public String welcome() {
-        Logger logger = LoggerFactory.getLogger(CustomerController.class);
-
-        logger.info("Testing logz.io!");
-        logger.warn("Winter is coming");
+        logger.info("Home page");
         registry.meter("welcome").mark();
         return "Welcome to this small REST service. It will accept a GET on /list with a request parameter lastName, and a POST to / with a JSON payload with firstName and lastName as values.";
     }
 
     @RequestMapping("/list")
-    public List<Customer> find(@RequestParam(value="lastName") String lastName) {
-        return customerRepository.findByLastName(lastName);
+    public List<Customer> find(@RequestParam(value = "lastName") String lastName) {
+        final Timer.Context context = responses.time();
+
+        logger.info("Getting customer");
+        List<Customer> customers = customerRepository.findByLastName(lastName);
+        context.stop();
+        return customers;
     }
 
     @PostMapping("/")
-    	Customer newCustomer(@RequestBody Customer customer) {
+    public Customer newCustomer(@RequestBody Customer customer) {
+        logger.info("Creating customer");
+        customersCreated.inc();
         System.out.println(customer);
-    		return customerRepository.save(customer);
-    	}
+        return customerRepository.save(customer);
+    }
 
 }
