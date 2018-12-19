@@ -50,9 +50,7 @@ public class CustomerControllerTest {
     public void welcome() throws Exception {
         when(registry.meter(ArgumentMatchers.any())).thenReturn(meter);
         this.mockMvc.perform(get("/")).andDo(print()).andExpect(status().isOk())
-                .andExpect(content().string(containsString("Welcome")));
-//        assertThat(this.restTemplate.getForObject("http://localhost:" + port + "/",
-//                String.class)).contains("Welcome");
+                .andExpect(content().string(containsString("Go away")));
     }
 
     @Test
@@ -64,7 +62,7 @@ public class CustomerControllerTest {
                 new Customer("Hello", "World")
         ));
         this.mockMvc.perform(get("/list").param("lastName", "World")).andExpect(status().isOk())
-                .andExpect(content().string(containsString("\"firstName\":\"Hello\"")));
+                .andExpect(content().string(containsString("\"firstName\":\"Goodbye\"")));
     }
 
     @Test
